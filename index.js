@@ -5,13 +5,13 @@ const loki = require('lokijs')
       ,moment = require('./src/moment.min.js')
 ;
 let server = app.listen(9001, function(){
-  console.log('server is running on port 3001')
+  console.log('server is running on port 9001')
 });
 io = require('socket.io')(server);
 
 app.use(express.static('dist'));
 io.on('connection', function(socket) {
-  console.log(socket.id+' connected')
+  // console.log(socket.id+' connected')
 })
 
 db.loadDatabase({},()=> {
@@ -20,7 +20,7 @@ db.loadDatabase({},()=> {
     // get all
     client.on('start',() => {
       io.sockets.emit('start',base.find())
-      console.log(base.find())
+      // console.log(base.find())
     })
     // edit one
     client.on('update',(data) => {
@@ -44,14 +44,11 @@ db.loadDatabase({},()=> {
       base.insert(data)
       db.saveDatabase();      
     })
+    // test request
+    client.on('request',(data)=>{
+      console.log(data)
+    })
   })
-/*
-let data = [
- {prog_list:'01.01.00',targ_list:'155',cat_id:'3,62,82,0',srokmin:6,srokmax:12,sum_min:1000000,summ_max:3000000,kds_rate:2,zp_rate:1,rate:9.99}
-,{prog_list:'03.01.00,03.01.01',targ_list:'195,155',cat_id:'1',srokmin:3,srokmax:5,kds_rate:2,zp_rate:1,rate:18} //res
-,{prog_list:'03.01.00',targ_list:'195,155',cat_id:'1',srokmin:6,srokmax:7,kds_rate:2,zp_rate:1,rate:17} //res
-]
-*/
 // запрос
 let req = {prog:'01.01.00',targ:155,cat_id:0,srok:7,summa:1500000,ask_kds:true,ask_zp:true}
 
