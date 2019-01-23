@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+  <title>Decision manager</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href='./src/roboto_css.css' rel="stylesheet">
+  <link href="./src/vuetify.min.css" rel="stylesheet">
+</head>
+<body>
+ <div id="app">
+   <v-app light>     
+    <v-toolbar class="white">
+      <v-toolbar-title class="black--text">Decision manager</v-toolbar-title>
+    </v-toolbar>
+    <v-content>
+        <!-- max-width="500px" -->
+<!-- форма добавления -->        
+<v-dialog 
+  v-model="dialog"
+>
+<v-btn fab dark color="indigo" slot="activator" class="mb-2"> <v-icon dark>add</v-icon></v-btn>
+  <v-card>
+    <v-card-title>
+    <span class="headline">{{ formTitle }}</span>
+    </v-card-title>
+    <v-card-text>
+      <v-container grid-list-md>
+        <v-layout wrap>
+            <v-flex xs12 sm6 md3>
+                <v-text-field label="Начало действия" v-model.date="editedItem.dstart"></v-text-field>
+              </v-flex>
+              <v-flex xs12 sm6 md3>
+                <v-text-field label="Окончание действия" v-model="editedItem.dend"></v-text-field>
+              </v-flex>
+        </v-layout>
+        <v-layout wrap>
+            <v-flex xs12 sm6 md3>
+              <v-text-field label="Программы" v-model="editedItem.prog_list"></v-text-field>
+            </v-flex>
+            <v-flex xs12 sm6 md3>
+              <v-text-field label="Цели" v-model="editedItem.targ_list"></v-text-field>
+            </v-flex>
+            <v-flex xs12 sm6 md3>
+                <v-text-field label="Категории" v-model="editedItem.cat_id"></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout wrap>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Срок мин, мес" v-model="editedItem.srokmin"></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Срок макс, мес" v-model="editedItem.srokmax"></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Сумма мин" v-model.number="editedItem.sum_min"></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Сумма макс" v-model="editedItem.sum_max"></v-text-field>
+          </v-flex>
+          </v-layout>
+          <v-layout wrap>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Дисконт кдс" v-model="editedItem.kds_rate"></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Дисконт зп" v-model="editedItem.zp_rate"></v-text-field>
+          </v-flex>
+          <v-flex xs12 sm6 md3>
+              <v-text-field label="Базовая ставка" v-model="editedItem.rate"></v-text-field>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-card-text>
+  <v-card-actions>
+  <v-spacer></v-spacer>
+  <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
+  <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+  </v-card-actions>
+  </v-card>
+  <!-- end форма добавления -->
+</v-dialog>      
+    <v-data-table 
+          :headers="headers"
+          :items="data"
+          hide-actions      
+          class="elevation-9  text-xs-left"
+        >
+          <template slot="items" slot-scope="props">
+            <td>{{ props.item.dstart }}</td>
+            <td>{{ props.item.dend }}</td>
+            <td>{{ props.item.prog_list }}</td>
+            <td>{{ props.item.targ_list }}</td>    
+            <td>{{ props.item.cat_id }}</td>
+            <td>{{ props.item.srokmin }}</td>
+            <td>{{ props.item.srokmax}}</td>
+            <td>{{ props.item.sum_min.toLocaleString() }}</td>
+            <td>{{ props.item.sum_max.toLocaleString() }}</td>
+            <td>{{ props.item.kds_rate }}</td>
+            <td>{{ props.item.zp_rate }}</td>
+            <td>{{ props.item.rate }}</td>
+            <td>
+              <v-btn icon class="mx-0" @click="editItem(props.item)">
+                <v-icon color="teal">edit</v-icon>
+              </v-btn>
+              <v-btn icon class="mx-0" @click="deleteItem(props.item,props.item.$loki)">
+                <v-icon color="red">delete</v-icon>
+              </v-btn>
+            </td>
+          </template>
+          <template slot="no-data">
+            <v-btn color="primary" @click="initialize">Reset</v-btn>
+          </template>
+    </v-data-table>     
+
+    </v-content>
+    <v-footer class="blue darken-2">
+        <v-layout row wrap align-center>
+        </v-layout>
+      </v-footer>    
+  </v-app>
+ </div>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="./src/vue.js"></script>
+ <script src="./src/vuetify.js"></script>
+ <script>
+    var socket = io.connect('http://localhost:9001');
+    socket.on('connect', function(data) {
+        socket.emit('join', 'Hello World from client');
+        console.log('socket on');
+    });   
+   new Vue({
+    el: '#app',
+    data () {
+      return {
+        dialog: false,
+        menu: false,
+        title: '',
+        data: [],
+        headers: [
+          { text: 'Начало',value: 'dstart' },
+          { text: 'Конец',value: 'dend' },
+          { text: 'Программы',value: 'prog_list' },
+          { text: 'Цели',value: 'targ_list'},
+          { text: 'Категории',value: 'cat_id'},
+          { text: 'Срок мин',value: 'srokmin'},
+          { text: 'Срок макс', value: 'srokmax'},
+          { text: 'Сумма мин', value: 'sum_min'},
+          { text: 'Сумма макс', value: 'sum_max'},
+          { text: 'Дисконт КДС', value: 'kds_rate'},
+          { text: 'Дисконт ЗП',value: 'zp_rate'},
+          { text: 'Ставка базовая', value: 'rate'}
+        ],
+        editedItem: {
+          // sum_min:Number
+        },          
+      }
+    },
+    computed: {
+      formTitle () {
+        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+      }
+    },    
+    created () {
+      this.initialize()
+    },
+    methods: {
+      initialize () {
+        socket.emit('start');
+        socket.on('start',data => {
+          this.data = data
+        })
+      },
+      editItem (item) {
+        this.editedIndex = this.data.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialog = true
+      },
+      deleteItem(item,id) {
+        const index = this.data.indexOf(item)
+        confirm('Подтвердите удаление') 
+        && this.data.splice(index, 1)
+        && socket.emit('delete',id)
+      },
+      close () {
+        this.dialog = false
+        setTimeout(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        }, 300)
+      },
+      save () {
+        if (this.editedIndex > -1) {
+            Object.assign(this.data[this.editedIndex], this.editedItem)
+            socket.emit('update',this.editedItem)
+        } else {
+            socket.emit('add',this.editedItem)
+            this.data.push(this.editedItem)
+        }
+        this.dialog = false
+        // this.close()
+      },                 
+    }
+  })
+ </script>
+</body>
+</html>
