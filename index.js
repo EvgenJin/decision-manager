@@ -3,6 +3,7 @@ const loki = require('lokijs')
       ,express = require('express')
       ,app = express()
       ,moment = require('./src/moment.min.js')
+      ,bodyParser = require('body-parser');
 ;
 let server = app.listen(9001, function(){
   console.log('server is running on port 9001')
@@ -13,6 +14,9 @@ app.use(express.static('dist'));
 io.on('connection', function(socket) {
   // console.log(socket.id+' connected')
 })
+
+app.use(bodyParser.json());
+// app.use(bodyParser());
 
 db.loadDatabase({},()=> {
   let base = db.getCollection('base')
@@ -51,6 +55,21 @@ db.loadDatabase({},()=> {
       io.sockets.emit('result',res)
     })
   })
+
+  // http api
+  app.post('/get_rate', function(request, response){
+    let res = get_rate(request.body)
+    response.send('{"result":'+res+'}')
+  });
+  // example
+  // { "date": "25.01.2018",
+  // "prog": "01.01.00",
+  // "targ": "155",
+  // "cat_id": "62",
+  // "term": "8",
+  // "amount": "1500000",
+  // "ask_kds": false,
+  // "ask_zp": false }
 
   // make decision
 function get_rate(req) {
