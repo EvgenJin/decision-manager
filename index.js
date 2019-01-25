@@ -47,6 +47,7 @@ db.loadDatabase({},()=> {
     // test request
     client.on('request',(data)=>{
       console.log(data)
+      io.sockets.emit('result','resulto!!!')
     })
   })
 // запрос

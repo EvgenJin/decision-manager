@@ -114,26 +114,35 @@
   </template>
 </v-data-table>
 
+<!-- fluid fill-height -->
+<v-container fluid>
+  <v-layout align-center>
+    <v-flex xs12 sm8 md3>
+      <v-card class="elevation-12">
+      <v-toolbar dark color="cyan darken-2">
+        <v-toolbar-title>Test decision</v-toolbar-title>
+      </v-toolbar>        
+        <v-card-text>
+          <v-form>
+            <v-text-field v-model = "request.date" label="Дата" type="text"></v-text-field>
+            <v-text-field v-model = "request.prog" label="Программа" type="number"></v-text-field>
+            <v-text-field v-model = "request.targ" label="Цель" type="number"></v-text-field>
+            <v-text-field v-model = "request.cat_id" label="Категория клиента" type="number"></v-text-field>
+            <v-text-field v-model = "request.term" label="Срок" type="number"></v-text-field>
+            <v-text-field v-model = "request.amount" label="Сумма" type="number"></v-text-field>
+            <v-checkbox label="КДС" v-model="request.kds"></v-checkbox>
+            <v-checkbox label="ЗП" v-model="request.zp"></v-checkbox>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="cyan" class="white--text" @click.native="send_request">Test</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
 
-<v-form>
-  <v-container>
-    <v-layout>
-      <v-flex xs3>
-        <v-text-field v-model = "request.date" label="date"/>
-      </v-flex>
-    </v-layout>
-    <v-layout>
-      <v-flex xs3>
-        <v-text-field v-model = "request.prog" label="prog"/>
-      </v-flex>
-    </v-layout>
-    <v-layout>
-      <v-flex xs3>
-        <v-btn color="blue darken-1" @click.native="send_request">test</v-btn>
-      </v-flex>
-    </v-layout>    
-  </v-container>
-</v-form>
 
 </v-content>
   <v-footer class="blue darken-2">
@@ -154,6 +163,7 @@
     el: '#app',
     data () {
       return {
+        // checkbox: true,
         dialog: false,
         menu: false,
         data: [],
@@ -173,7 +183,10 @@
         ],
         editedItem: {
         },
-        request: {},  
+        request: {
+          // kds:false,
+          // zp:false,
+        },  
       }
     },
     computed: {
@@ -222,6 +235,9 @@
       },
       send_request () {
         socket.emit('request',this.request)
+        socket.on('result',(res) => {
+          alert(res)
+        })
       }              
     }
   })
