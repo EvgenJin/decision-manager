@@ -79,8 +79,9 @@
   <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
   </v-card-actions>
   </v-card>
+</v-dialog>
   <!-- end форма добавления -->
-</v-dialog>      
+  <!-- Грид решений -->
   <v-data-table 
   :headers="headers"
   :items="data"
@@ -113,8 +114,9 @@
     <v-btn color="primary" @click="initialize">Reset</v-btn>
   </template>
 </v-data-table>
-
+<!-- end Грид решений -->
 <!-- fluid fill-height -->
+<!-- форма запроса -->
 <v-container fluid>
   <v-layout align-center>
     <v-flex xs12 sm8 md3>
@@ -125,13 +127,13 @@
         <v-card-text>
           <v-form>
             <v-text-field v-model = "request.date" label="Дата" type="text"></v-text-field>
-            <v-text-field v-model = "request.prog" label="Программа" type="number"></v-text-field>
+            <v-text-field v-model = "request.prog" label="Программа" type="text"></v-text-field>
             <v-text-field v-model = "request.targ" label="Цель" type="number"></v-text-field>
             <v-text-field v-model = "request.cat_id" label="Категория клиента" type="number"></v-text-field>
             <v-text-field v-model = "request.term" label="Срок" type="number"></v-text-field>
             <v-text-field v-model = "request.amount" label="Сумма" type="number"></v-text-field>
-            <v-checkbox label="КДС" v-model="request.kds"></v-checkbox>
-            <v-checkbox label="ЗП" v-model="request.zp"></v-checkbox>
+            <v-checkbox label="КДС" v-model="request.ask_kds"></v-checkbox>
+            <v-checkbox label="ЗП" v-model="request.ask_zp"></v-checkbox>
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -142,7 +144,7 @@
     </v-flex>
   </v-layout>
 </v-container>
-
+<!-- end форма запроса -->
 
 </v-content>
   <v-footer class="blue darken-2">
@@ -236,7 +238,7 @@
       send_request () {
         socket.emit('request',this.request)
         socket.on('result',(res) => {
-          alert(res)
+          console.log('result rate: '+res)
         })
       }              
     }
