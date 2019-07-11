@@ -1,7 +1,8 @@
 # decision-manager
 ## Node.js , VueJs, Socket.io, Lokijs light decision manager
 
-if you are like me dont want use a heavy decision manager like Drools or Redhat decision manager u can clone and fork this idea.I use LokiJs to store decisions and VueJs to crud it and hardcode cases for my needs. This example make a decision for loan and calculate rate with discount. Peace
+Light decision manager in use LokiJs to store decisions and VueJs to crud it and hardcode rules.   
+This example make a decision for loan and calculate rate with discount.   
 
 ## How to use
 go to project folder 
